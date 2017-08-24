@@ -12,16 +12,17 @@
       </div>
 
       <div class="content">
-        <input type="text" class="input username" placeholder="Username" autofocus/>
+        <input type="text" class="input username" placeholder="Your Email" v-verify="loginname" v-model="loginname" autofocus/>
         <div class="user-icon"></div>
-        <div class="user-validate">{{userValidation}}</div>
-        <input type="password" class="input password" placeholder="Password" />
+        <div class="user-validate" ><span v-remind="loginname"></span></div>
+        <input type="password" class="input password" placeholder="Your Password" v-verify="loginpass" v-model="loginpass"/>
         <div class="pass-icon"></div>
-        <div class="pass-validate">{{passValidation}}</div>
+        <div class="pass-validate" v-remind="loginpass" ><span ></span></div>
+
       </div>
 
       <div class="form-footer">
-        <input type="submit" name="submit" value="Login" class="button" />
+        <input type="submit" name="submit" value="登录" class="button" :loading="loginLoading" @click.prevent="login"/>
         <input type="submit" name="submit" value="忘记密码？" class="findpass" />
       </div>
     </form>
@@ -31,6 +32,9 @@
 </template>
 <script>
   import pagefoot from '../components/foter.vue'
+  import api from '../axios/api'
+  import axios from '../axios/api'
+  import { mapActions } from 'vuex'
 
   export default{
     name:'adlogin',
@@ -40,19 +44,65 @@
     },
     data(){
         return{
-            userValidation:'',
-            passValidation:''
+          loginname:'',
+          loginpass:'',
+          loginLoading:false
         }
+    },
+    verify:{
+        loginname:["full","required"],
+        loginpass:["full","required"]
+    },
+    methods: {
+      ...mapActions({setUserInfo: 'setUserInfo'}),
+      login(){
+        if (this.$verify.check()) {
+          let data = {
+            email: this.loginname,
+            password: this.loginpass
+          };
+          this.loginLoading = true;
+          this.$store.dispatch('setLoadingState', false);
+          api.Login(data)
+            .then(res => {
+              if (res.data.status === 0) {
+                this.$store.dispatch('setLoadingState', true);
+                this.loginLoading = false;
+                this.setUserInfo(res);
+
+//                axios.get('http://api.crm.echowap.com//v1/options').then((res)=>{
+//                  if(res.data.status===0){
+//                    this.$store.state.user.comdata1=res.data.data[0].invoice_type;
+//
+//                  }
+//                });
+
+                this.$router.replace('/userInfo')
+//                  this.$router.push({path:'/index'})
+              } else {
+                this.$message({
+                  message: res.data.msg,
+                  type: 'error'
+                });
+                this.loginLoading = false;
+              }
+            })
+            .catch(err => {
+              this.$message({
+                message: err,
+                type: 'error'
+              });
+              this.loginLoading = false;
+            })
+        }
+      }
     }
-  }
+    }
 </script>
 <style >
   body,html,#app{
     height: 100%;
   }
-body{
-  background: url('../assets/images/bg.png');
-}
 </style>
 <style scoped>
   @import url(http://fonts.googleapis.com/css?family=Bree+Serif);
@@ -67,11 +117,10 @@ body{
     color: #fff;
     background: #f676b2; /* Firefox */
   }
-
-
   .login-zone{
     height: 100%;
     overflow-y:hidden;
+    background: url('../assets/images/bg.png');
 
   }
 
@@ -183,9 +232,7 @@ body{
     position: absolute;
     left: 0;
     padding-right: 2px;
-    z-index: -1;
-
-
+    visibility: hidden;
     -moz-border-radius-topleft: 5px;
     -moz-border-radius-bottomleft: 5px;
     -webkit-border-top-left-radius: 5px;
@@ -203,11 +250,25 @@ body{
   }
 
   .content input:focus + div{
-    left: -46px;
+    left: -49px;
+    visibility: visible;
+    -webkit-transition: 0.5s;
+    -moz-transition: 0.5s;
+    -ms-transition: 0.5s;
+    -o-transition: 0.5s;
+    transition: 0.5s;
+  }
+
+  .user-icon, .pass-icon{
+    transition: all 0s ease;
+    -moz-transition: all 0s ease;
+    -webkit-transition: all 0s ease;
+    -o-transition: all 0s ease;
+    -ms-transition: all 0s ease;
   }
 
   /* Animation */
-  .input, .user-icon, .pass-icon, .button, .findpass {
+  .input, .button, .findpass {
     transition: all 0.5s ease;
     -moz-transition: all 0.5s ease;
     -webkit-transition: all 0.5s ease;
@@ -219,32 +280,26 @@ body{
   .login-form .form-footer {
     padding: 25px 30px 25px 30px;
     overflow: hidden;
-
     background: #d4dedf;
     border-top: 1px solid #fff;
-
     box-shadow: inset 0 1px 0 rgba(0,0,0,0.15);
     -moz-box-shadow: inset 0 1px 0 rgba(0,0,0,0.15);
     -webkit-box-shadow: inset 0 1px 0 rgba(0,0,0,0.15);
-
   }
 
   /* Login button */
   .login-form .form-footer .button {
     float:right;
     padding: 11px 25px;
-
     font-family: 'Bree Serif', serif;
     font-weight: 300;
     font-size: 18px;
     color: #fff;
     text-shadow: 0px 1px 0 rgba(0,0,0,0.25);
-
     background: #56c2e1;
     border: 1px solid #46b3d3;
     border-radius: 5px;
     cursor: pointer;
-
     box-shadow: inset 0 0 2px rgba(256,256,256,0.75);
     -moz-box-shadow: inset 0 0 2px rgba(256,256,256,0.75);
     -webkit-box-shadow: inset 0 0 2px rgba(256,256,256,0.75);
@@ -253,7 +308,6 @@ body{
   .login-form .form-footer .button:hover {
     background: #3f9db8;
     border: 1px solid rgba(256,256,256,0.75);
-
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
     -moz-box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
     -webkit-box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
@@ -262,7 +316,6 @@ body{
   .login-form .form-footer .button:focus {
     position: relative;
     bottom: -1px;
-
     background: #56c2e1;
     box-shadow: inset 0 1px 6px rgba(256,256,256,0.75);
     -moz-box-shadow: inset 0 1px 6px rgba(256,256,256,0.75);
@@ -275,16 +328,13 @@ body{
     float: right;
     padding: 10px;
     margin-right: 40px;
-
     background: none;
     border: none;
     cursor: pointer;
-
     font-weight: 300;
     font-size: 13px;
     line-height: 18px;
     color: #678889;
-
     text-shadow: 0 1px 0 rgba(256,256,256,0.5);
   }
 
@@ -304,9 +354,8 @@ body{
     font-weight: 400;
     font-size: 14px;
     color: #f676b2;
-    visibility: hidden;
+    visibility: visible;
   }
-
 </style>
 
 
