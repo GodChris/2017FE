@@ -54,7 +54,7 @@
             console.log(this.$store.state.user);
           this.$refs[formName].validate((valid) =>{
             if(valid){
-              this.$confirm('确认修改密码吗？', '提示', {}).then(()=>{
+              this.$confirm('修改后将退出？', '提示', {}).then(()=>{
                 this.modifyLoading=true;
                 let resetData={
                   old_password:this.modify.originalPass,
@@ -69,8 +69,10 @@
                         message: '修改成功',
                         type: 'success'
                       });
-                      this.$refs['modify'].resetFields();
-                      this.$router.replace('/userInfo')
+                      setTimeout(()=>{
+                        this.$refs['modify'].resetFields();
+                        this.$router.replace('/login')
+                      },2000);
                     }else{
                       setTimeout(()=>{
                         this.$message({
@@ -99,7 +101,7 @@
 <style scoped>
 .modifyForm{
   margin: 20px auto 20px;
-  width: 400px;
+  width: 300px;
 }
   .modifyButton{
     float: right;

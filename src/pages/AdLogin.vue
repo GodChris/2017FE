@@ -18,7 +18,6 @@
         <input type="password" class="input password" placeholder="Your Password" v-verify="loginpass" v-model="loginpass"/>
         <div class="pass-icon"></div>
         <div class="pass-validate" v-remind="loginpass" ><span ></span></div>
-
       </div>
 
       <div class="form-footer">
@@ -33,12 +32,11 @@
 <script>
   import pagefoot from '../components/foter.vue'
   import api from '../axios/api'
-  import axios from '../axios/api'
+  import axios from 'axios'
   import { mapActions } from 'vuex'
 
   export default{
     name:'adlogin',
-
     components:{
           'page-footer':pagefoot
     },
@@ -61,24 +59,39 @@
             email: this.loginname,
             password: this.loginpass
           };
+
           this.loginLoading = true;
           this.$store.dispatch('setLoadingState', false);
-          api.Login(data)
-            .then(res => {
+          api.Login(data).then(res => {
+              this.loginLoading = false;
               if (res.data.status === 0) {
                 this.$store.dispatch('setLoadingState', true);
-                this.loginLoading = false;
                 this.setUserInfo(res);
+                axios.get('/v1/options').then((res1)=>{
+                  if(res1.data.status===0){
+//                    this.$store.state.user.comdata1=res1.data.data[0].invoice_type;
+//                    this.$store.state.user.comdata2=res1.data.data[0].need_invoice;
+//                    this.$store.state.user.comdata3=res1.data.data[0].statement_type;
+//                    this.$store.state.user.comdata4=res1.data.data[0].action_module;
 
-//                axios.get('http://api.crm.echowap.com//v1/options').then((res)=>{
-//                  if(res.data.status===0){
-//                    this.$store.state.user.comdata1=res.data.data[0].invoice_type;
-//
-//                  }
-//                });
+                    sessionStorage.setItem('invoice_name',JSON.stringify(res1.data.data[0].invoice_name));
+                    sessionStorage.setItem('entity_name',JSON.stringify(res1.data.data[0].entity_name));
+                    sessionStorage.setItem('invoice_type',JSON.stringify(res1.data.data[0].invoice_type));
+                    sessionStorage.setItem('order_type',JSON.stringify(res1.data.data[0].order_type));
+                    sessionStorage.setItem('app_category',JSON.stringify(res1.data.data[0].app_category));
+                    sessionStorage.setItem('geo_code',JSON.stringify(res1.data.data[0].geo_code2));
+                    sessionStorage.setItem('day_parting',JSON.stringify(res1.data.data[0].day_parting));
+                    sessionStorage.setItem('android_version',JSON.stringify(res1.data.data[0].android_version));
+                    sessionStorage.setItem('ios_version',JSON.stringify(res1.data.data[0].ios_version));
+                    sessionStorage.setItem('network',JSON.stringify(res1.data.data[0].network));
+                    sessionStorage.setItem('carrier',JSON.stringify(res1.data.data[0].carrier));
+                    sessionStorage.setItem('device_type',JSON.stringify(res1.data.data[0].device_type));
+                    sessionStorage.setItem('creative_set',JSON.stringify(res1.data.data[0].creative_set))
 
-                this.$router.replace('/userInfo')
-//                  this.$router.push({path:'/index'})
+                  }
+                });
+
+                this.$router.replace('/log')
               } else {
                 this.$message({
                   message: res.data.msg,
@@ -86,12 +99,12 @@
                 });
                 this.loginLoading = false;
               }
-            })
-            .catch(err => {
+            }).catch(err => {
               this.$message({
                 message: err,
                 type: 'error'
               });
+              console.log('fucku');
               this.loginLoading = false;
             })
         }

@@ -3,12 +3,13 @@
     <!--头部导航-->
     <el-col>
       <el-menu :router="rout" theme="dark" :default-active="currentPath"  class="el-menu-demo" mode="horizontal"  @select="handleSelectHeader">
-        <el-menu-item index="/login">Zonst FE</el-menu-item>
-        <el-menu-item index="/index">{{userName}}</el-menu-item>
+        <el-menu-item index="" >Zonst FE</el-menu-item>
+        <el-menu-item index="userInfo" >{{userName}}</el-menu-item>
+        <el-menu-item index="/payHistory" >余额：{{balance}}</el-menu-item>
         <el-menu-item index="/charts" class="menu-right">展示</el-menu-item>
-        <el-menu-item index="/plans" class="menu-right">广告</el-menu-item>
+        <el-menu-item index="/create" class="menu-right">广告</el-menu-item>
         <el-menu-item index="/doc" class="menu-right">文件</el-menu-item>
-        <el-menu-item index="/userInfo" class="menu-right">账户</el-menu-item>
+        <el-menu-item index="/log" class="menu-right">账户</el-menu-item>
         <el-menu-item index="" class="menu-right" @click.native="logout">注销</el-menu-item>
 
       </el-menu>
@@ -25,7 +26,7 @@
       </el-col>
       <!--左侧导航-->
       <el-col class="main">
-        <el-menu :default-active="$route.path" class="el-menu-vertical-demo"
+        <el-menu :default-active="currentPath" class="el-menu-vertical-demo"
                   @select="handleSelect" unique-opened :router="rout">
           <template  v-if="!item.hidden" v-for="(item,index) in items">
             <el-submenu :index="index+''" v-if="!item.leaf">
@@ -54,20 +55,25 @@
 
 <script>
   import { mapActions } from 'vuex'
+  import api from '../axios/api'
   export default {
     data(){
       return{
         rout:true,
         userName:'',
         currentPath:this.$route.path,
-        items:[]
+        items:[],
+        balance:''
       }
     },
     methods:{
       ...mapActions({setSignOut: 'setSignOut'}),
       handleSelectHeader(index) {
           if(index){
-        window.location.reload();}
+        window.location.reload();
+          }else{
+              index=this.$route.path;
+          }
       },
       handleSelect(){
       },
@@ -75,13 +81,19 @@
           let that=this;
         this.$confirm('确认退出吗?', '提示', {
         }).then(() => {
-            that.setSignOut();
-          that.$router.replace('/login');
-        }).catch((err) => {
-            console.log(err);
-        });
-      }
+            api.logOut().then(res=>{
+                if(res.data.status===0){
+              that.setSignOut();
+              that.$router.replace('/login');}
+            }).catch((err) => {
+                this.$message({
+                  message:'退出时出错!'
+                });
+              console.log(err);
+            });
 
+        })
+      }
     },
     mounted() {
       let user = sessionStorage.getItem('userInfo');
@@ -89,6 +101,16 @@
         user = JSON.parse(user);
         this.userName = user[0].email || '';
       }
+      //获取余额
+      api.getBalance()
+        .then(res=>{
+          if(res.data.status===0){
+            this.balance=Number(res.data.data.balance).toFixed(2);
+          }
+        }).catch(err=>{
+        this.balance=0;
+        console.log(err)
+      })
     },
     created(){
       this.items=[this.$router.options.routes[this.$route.meta.id],this.$router.options.routes[this.$route.meta.id+1]];
@@ -96,7 +118,7 @@
   }
 </script>
 <style scoped>
-  @media only screen and (max-height: 630px){
+  @media only screen and (max-height: 635px){
     .container{
       top: 0;
       bottom: 0;
@@ -115,7 +137,7 @@
     }
     .menu-right{
       position: relative;
-      left: 40%;
+      left: 30%;
 
     }
     /* 左侧导航*/
@@ -123,7 +145,7 @@
       width: 220px;
       background-color: rgb(234,237,244);
       overflow-y: hidden;
-      height:500px;
+      height:520px;
       border-right: 1px solid rgb(213,213,213);
     }
     /**/
@@ -134,7 +156,7 @@
       border-radius: 0 0 0 3px;
       border: 1px solid rgb(213,213,213);
       border-top: none;
-      height: 590px;
+      height: 610px;
     }
     /*左侧导航和右侧内容*/
     .main{
@@ -156,16 +178,19 @@
     /*右侧内容部分*/
     .content-container{
       display: flex;
-      height: 430px;
+      height: 490px;
       overflow-y: scroll;
+      overflow-x: scroll;
       flex:1;
-      padding: 10px 20px 30px 20px;
-      margin:15px 10px 15px 18px;
+      padding: 0px 10px 14px 20px;
+      margin:15px 0px 0px 18px;
       background-color: rgb(234,237,244);
+      border-left: 1px solid rgb(223,223,223);
+      border-top:1px solid rgb(223,223,223);
     }
 
   }
-  @media only screen and (min-height: 630px){
+  @media only screen and (min-height: 635px){
     .container{
       top: 0;
       bottom: 0;
@@ -222,13 +247,12 @@
     /*右侧内容部分*/
     .content-container{
       display: flex;
-      height: 500px;
+      height: 510px;
       overflow-y: scroll;
       flex:1;
       padding: 20px;
-      margin:20px;
+      margin:16px 0px 16px 16px;
       background-color: rgb(234,237,244);
     }
-
   }
 </style>

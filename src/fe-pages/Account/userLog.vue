@@ -1,11 +1,13 @@
 <template>
   <section>
-    <el-table :data="actions" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width:100%;">
-      <el-table-column prop="action_module" label="操作模块"  width=""></el-table-column>
-      <el-table-column prop="action_module_id" label="操作模块ID" width=""></el-table-column>
-      <el-table-column prop="action_type" label="操作类型" width=""></el-table-column>
-      <el-table-column prop="create_date" label="创建时间" width=""></el-table-column>
-      <el-table-column prop="ip_address" label="IP地址" width=""></el-table-column>
+    <el-table :data="actions" highlight-current-row v-loading="listLoading" @selection-change="selsChange"
+              style="width:100%;" :default-sort="{prop: 'create_date', order: 'descending'}">
+      <el-table-column prop="action_module" :formatter="formatModule" label="操作模块" width="210px">
+      </el-table-column>
+      <el-table-column prop="action_id" label="模块ID" width="210px"></el-table-column>
+      <el-table-column prop="action_type" label="操作类型" width="200"></el-table-column>
+      <el-table-column prop="create_date" label="创建时间" width="" sortable></el-table-column>
+      <!--<el-table-column prop="ip_address" label="IP地址" width=""></el-table-column>-->
     </el-table>
     <!--分页-->
     <el-col :span="24" class="toolbar">
@@ -33,6 +35,10 @@
       }
     },
     methods:{
+      formatModule(row){
+          return row.action_module==="account"?'账户':(row.action_module==="campaign"?'活动':(row.action_module==="recharge"?'充值':(row.action_module==="segment"?'人群包':'定向')));
+
+      },
       selsChange: function (sels) {
         this.sels = sels;
       },
@@ -45,6 +51,7 @@
         this.getActionLog();
       },
       getActionLog(){
+
         let para={
           page:this.page,
           page_size:this.page_size
@@ -59,10 +66,10 @@
               for(let i=0;i<actionsData.length;i++){
                 let obj={};
                 obj.action_module=actionsData[i].action_module;
-                obj.action_module_id=actionsData[i].action_module_id;
+                obj.action_id=actionsData[i].action_id;
                 obj.action_type=actionsData[i].action_type;
                 obj.create_date=actionsData[i].create_date;
-                obj.ip_address=actionsData[i].ip_address;
+//                obj.ip_address=actionsData[i].ip_address;
                 datas[i]=obj
               }
               this.actions=datas;

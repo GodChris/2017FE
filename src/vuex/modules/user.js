@@ -9,11 +9,6 @@ const state = {
   loginStatus: JSON.parse(sessionStorage.getItem('loginStatus')) || false,
   // 用户登录信息 email
   userInfo: JSON.parse(sessionStorage.getItem('userInfo')) || {},
-  comdata1:{}
-
-  // // 用户数据信息
-  // userData: []
-
 };
 const actions = {
   //用户登录
@@ -29,6 +24,19 @@ const actions = {
   setSignOut({ commit }) {
     sessionStorage.removeItem('loginStatus');
     sessionStorage.removeItem('userInfo');
+    sessionStorage.removeItem('entity_name');
+    sessionStorage.removeItem('invoice_name');
+    sessionStorage.removeItem('invoice_type');
+    sessionStorage.removeItem('order_type');
+    sessionStorage.removeItem('app_category');
+    sessionStorage.removeItem('day_parting');
+    sessionStorage.removeItem('android_version');
+    sessionStorage.removeItem('ios_version');
+    sessionStorage.removeItem('network');
+    sessionStorage.removeItem('carrier');
+    sessionStorage.removeItem('device_type');
+    sessionStorage.removeItem('geo_code');
+    sessionStorage.removeItem('creative_set');
 
     commit(types.SET_LOGIN_STATUS, false);
     commit(types.SET_USER_INFO, {});
@@ -42,9 +50,6 @@ const getters = {
 
 };
 const mutations={
-  // [types.GET_USER_DATA](state, res) {
-  //   state.userData = res
-  // },
   [types.SET_LOGIN_STATUS](state, status) {
     state.loginStatus = status
   },

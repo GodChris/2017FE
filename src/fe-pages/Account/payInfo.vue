@@ -3,19 +3,27 @@
     <el-form-item label="金额" prop="order_money">
       <el-input v-model="rechargesForm.order_money"></el-input>
     </el-form-item>
+    <!--<el-form-item label="支付方式">-->
+      <!--<el-radio v-model="rechargesForm.order_type" label="1" name="type">银行</el-radio>-->
+      <!--<el-radio v-model="rechargesForm.order_type" label="2" name="type">支付宝</el-radio>-->
+      <!--<el-radio v-model="rechargesForm.order_type" label="3" name="type">微信</el-radio>-->
+    <!--</el-form-item>-->
+
     <el-form-item label="支付方式">
-      <el-radio v-model="rechargesForm.order_type" label="1" name="type">银行</el-radio>
-      <el-radio v-model="rechargesForm.order_type" label="2" name="type">支付宝</el-radio>
-      <el-radio v-model="rechargesForm.order_type" label="3" name="type">微信</el-radio>
+      <el-radio v-for="(key,value) in order_types" :key="value"
+                :label="parseInt(value)" v-model="rechargesForm.order_type" name="type">
+        {{ key }}
+      </el-radio>
     </el-form-item>
-    <el-form-item label="用户账号" prop="account_no">
+
+    <el-form-item label="支付账号" prop="account_no">
       <el-input v-model="rechargesForm.account_no"></el-input>
     </el-form-item>
-    <el-form-item label="用户名" prop="account_name">
+    <el-form-item label="支付人" prop="account_name">
       <el-input v-model="rechargesForm.account_name"></el-input>
     </el-form-item>
-    <el-form-item label="注释" prop="description">
-      <el-input v-model="rechargesForm.description"></el-input>
+    <el-form-item label="备注" prop="description">
+      <el-input type="textarea" v-model="rechargesForm.description"></el-input>
     </el-form-item>
     <el-button class="openbutton" native-type="reset">取消</el-button>
     <el-button class="openbutton" type="primary" @click.native="addSubmit('rechargesForm')" :loading="addLoading">充值</el-button>
@@ -29,9 +37,10 @@
       return{
         position:'left',
         addLoading:false,
+        order_types:JSON.parse(sessionStorage.getItem('order_type')),
         rechargesForm:{
           order_money:'',
-          order_type:'',
+          order_type:1,
           account_no:'',
           account_name:'',
           description:''
@@ -46,8 +55,11 @@
           account_name:[
             {required: true, message: '请输入用户名', trigger: 'blur'}
           ],
-          description:[
-            {required: true, message: '请填写注释', trigger: 'blur'}
+//          description:[
+//            {required: true, message: '请填写注释', trigger: 'blur'}
+//          ],
+          order_type:[
+            {required:true,message:'请选择支付方式',trigger:'blur'}
           ]
         }
       }
@@ -77,7 +89,7 @@
                 }else{
                   setTimeout(()=>{
                     this.$message({
-                      message:'充值失败'+res.data.msg,
+                      message:'充值出错'+res.data.msg,
                       type:'error'
                     });
                     this.addLoading=false
@@ -86,7 +98,7 @@
               }).catch(err=>{
                 setTimeout(()=>{
                   this.$message({
-                    message:'充值出错'+err,
+                    message:'充值失败'+err,
                     type:'error'
                   });
                   this.addLoading=false;

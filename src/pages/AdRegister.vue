@@ -20,10 +20,10 @@
         </div>
         <span class="reminder" v-remind="repassword"></span>
 
-        <div class="row">
-          <input type="text" v-model="company_name" v-verify="company_name" placeholder="Your Company Name">
-        </div>
-        <span class="reminder" v-remind="company_name"></span>
+        <!--<div class="row">-->
+          <!--<input type="text" v-model="company_name" v-verify="company_name" placeholder="Your Company Name">-->
+        <!--</div>-->
+        <!--<span class="reminder" v-remind="company_name"></span>-->
 
         <div class="row">
           <input type="text" v-model="phone" v-verify="phone" placeholder="Your phone">
@@ -77,7 +77,7 @@
           email:'',
           pwd:'',
           repassword:'',
-          company_name:'',
+//          company_name:'',
           phone:'',
           qqnum:'',
 //          selectedValue:'',
@@ -86,12 +86,12 @@
         },
 
       verify:{
-          company_name:[
-            {
-                maxLength:300,
-              message:"公司名不得大于300位"
-            }
-          ],
+//          company_name:[
+//            {
+//                maxLength:300,
+//              message:"公司名不得大于300位"
+//            }
+//          ],
           email:["required","email"],
           pwd:["required",{
               minLength:6,
@@ -133,16 +133,28 @@
               email:this.email.toString(),
               password: this.pwd,
               dpassword:this.repassword,
-              company_name:this.company_name,
+//              company_name:this.company_name,
               qq:this.qqnum,
               phone:this.phone,
             };
                 api.Register(data).then(res => {
                     console.log(data);
-                  that.signing=false;
+
                     if (res.data.status===0) {
+
                       that.$store.dispatch('setLoadingState', false);
-                      setTimeout(()=>{that.$router.replace('/login')},2000);
+                      setTimeout(()=>{
+                          that.signing=false;
+                          that.$router.replace('/login')},3000);
+                    }else{
+                      setTimeout(()=>{
+                        this.$message({
+                          message:'注册失败'+res.data.msg,
+                          type:'error '
+                        });
+                        that.signing=false;
+                      },3000);
+
                     }
                   })
                   .catch(error => {

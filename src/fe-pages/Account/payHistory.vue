@@ -1,25 +1,25 @@
 <template>
   <section>
-    <el-table :data="recharges" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width:100%;">
-      <el-table-column prop="order_money" label="金额" width=""></el-table-column>
-      <el-table-column prop="order_type" label="支付方式" width=""></el-table-column>
-      <el-table-column prop="order_date" label="付款时间" width=""></el-table-column>
-      <el-table-column prop="account_no" label="用户账户" width=""></el-table-column>
+    <el-table :data="recharges" highlight-current-row v-loading="listLoading" @selection-change="selsChange"
+              style="width:100%;" :default-sort="{prop: 'create_date', order: 'descending'}">
+      <el-table-column class="fontBold"   label="金额" width="100px">
+        <template scope="scope">
+          <span :class="{active: isActive}">{{ scope.row.order_money }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="order_type" label="支付方式" width="100px"></el-table-column>
+      <!--<el-table-column prop="order_date" label="付款时间" width="100px"></el-table-column>-->
+      <el-table-column prop="account_no" label="用户账户" width="180px"></el-table-column>
       <el-table-column prop="account_name" label="用户名" width=""></el-table-column>
-      <el-table-column prop="description" label="描述" width=""></el-table-column>
-      <el-table-column prop="create_date" label="创建时间" width=""></el-table-column>
-      <el-table-column prop="status" label="处理进度" width="100"
+      <el-table-column prop="description" label="描述" width="100px"></el-table-column>
+      <el-table-column prop="create_date" label="创建时间" width="180px" sortable></el-table-column>
+      <el-table-column prop="status" label="处理进度" width="100px"
                        :filters="[{ text: '待处理', value: '待处理' }, { text: '已处理', value: '已处理' }]"
                        :filter-method="filterStatus" filter-placement="bottom-end">
         <template scope="scope">
           <el-tag :type="scope.row.status === '0' ? 'primary' : 'success'" close-transition>{{scope.row.status}}</el-tag>
         </template>
       </el-table-column>
-      <!--<el-table-column label="操作"  width="">-->
-      <!--<template scope="scope">-->
-      <!--<el-button size="small" @click="handleAudit(scope.$index, scope.row)">审核</el-button>-->
-      <!--</template>-->
-      <!--</el-table-column>-->
     </el-table>
     <!--分页-->
     <el-col :span="24" class="toolbar">
@@ -44,6 +44,7 @@
         total:0,
         page:1,
         listLoading: false,
+        isActive: true
       }
     },
     methods:{
@@ -75,9 +76,9 @@
               let datas=[];
               for(let i=0;i<rechargesData.length;i++){
                 let obj={};
-                obj.order_money=rechargesData[i].order_money;
+                obj.order_money=Number(rechargesData[i].order_money).toFixed(2);
                 obj.order_type=(rechargesData[i].order_type>2?'微信':(rechargesData[i].order_type===2?'支付宝':'银行'));
-                obj.order_date=rechargesData[i].order_date;
+//                obj.order_date=rechargesData[i].order_date;
                 obj.account_no=rechargesData[i].account_no;
                 obj.account_name=rechargesData[i].account_name;
                 obj.description=rechargesData[i].description;
@@ -117,4 +118,8 @@
 </script>
 
 <style scoped>
+  .active{
+    font-weight: bolder;
+    color: #0c5e9c;
+  }
 </style>
