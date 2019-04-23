@@ -1,8 +1,4 @@
 <<<<<<< HEAD
-# fesystem
-
-> zonst
-
 ## Build Setup
 
 ``` bash
